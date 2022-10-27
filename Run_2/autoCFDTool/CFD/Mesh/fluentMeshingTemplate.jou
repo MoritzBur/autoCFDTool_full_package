@@ -1,0 +1,228 @@
+;-------- PARAMETERS SECTION START --------
+
+
+
+(define study "STUDYNAME")
+(define meshSizeFactor 1)
+(define fileName "FILENAME")
+
+
+
+;define global parameters
+
+(define globalMin GLOBALMIN)
+(define globalMax GLOBALMAX)
+(define globalGrowthRate GLOBALGROWTHRATE)
+
+
+
+;surface mesh
+
+(define faceMax FACEMAX)
+(define wingFaceMax WINGLOCALMAX)
+(define fuselageFaceMin FUSELAGELOCALMIN)
+(define normAngle NORMANGLE)
+(define cellsPerGap CELLSPERGAP)
+
+
+
+;prism layers
+
+(define firstLayerHeight FIRSTLAYERHEIGHT)
+(define numberOfLayers NUMBEROFLAYERS)
+(define lastPercent LASTPERCENT)
+
+
+
+;rotation
+
+(define angleOfAttack 5)
+
+
+
+;domain size
+
+(define xmax XMAX)
+(define ymax YMAX)
+(define zmax ZMAX)
+
+(define xmin XMIN)
+(define ymin 0)
+(define zmin ZMIN)
+
+;-------- PARAMETERS SECTION END --------
+
+;-------- FLUENT MESHING SECTION START --------
+
+
+;import CAD file
+/file/import cad-geometry yes "PARENTPATH\CFD\Geometry\candidate.step" mm cad-faceting yes 0.1 10
+
+
+
+;create domain box
+
+/boundary create-bounding-box (*) wall domain 500 absolute xmin ymin zmin xmax ymax zmax yes
+
+
+
+;change domain face names
+
+/boundary manage name domain-xmin velocityInlet
+/boundary manage name domain-xmax pressureOutlet
+/boundary manage name domain-ymin symmetry
+
+
+
+;define global size-functions
+
+/size-functions set-global-controls globalMin globalMax globalGrowthRate
+
+
+
+;define local sizing
+
+/scoped-sizing create soft-wingSizing soft object-faces-and-edges yes no *wing* wingFaceMax globalGrowthRate globalMin  
+/scoped-sizing create curv-wingSizing curvature object-faces-and-edges yes no *wing* globalMin wingFaceMax globalGrowthRate normAngle
+/scoped-sizing create prox-wingSizing proximity edge-zone yes no *wing* globalMin faceMax globalGrowthRate cellsPerGap
+;/scoped-sizing create curv-fuselageSizing curvature object-faces-and-edges yes no *fuselage fuselageFaceMin faceMax globalGrowthRate normAngle
+
+
+
+;compute size-field
+
+scoped-sizing compute
+
+
+;create material point (defines the domain area containing the fluid)
+
+/material-point create-material-point material-point -100 100 0
+
+
+
+;extract edges
+
+/objects extract-edges (*) feature 40
+
+
+
+;extract intersection loops
+
+/objects create-intersection-loops collectively (*)
+
+
+
+;wrap objects
+
+/objects wrap wrap cand* (*) collectively internalMesh shrink-wrap material-point hybrid 0.7
+
+
+
+;surface mesh improvements
+/objects improve-feature-capture (*) 3 0
+
+/diagnostics quality general-improve objects (*) skewness 0.95 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.9 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.8 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.7 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.6 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.5 40 30 yes
+
+/diagnostics quality collapse objects (*) skewness 0.99 40 30 no
+/diagnostics quality collapse objects (*) skewness 0.98 40 30 no
+/diagnostics quality collapse objects (*) skewness 0.96 40 30 no
+/diagnostics quality collapse objects (*) skewness 0.94 40 30 no
+/diagnostics quality collapse objects (*) skewness 0.92 40 30 no
+/diagnostics quality collapse objects (*) skewness 0.9 40 30 no
+
+/diagnostics quality general-improve objects (*) skewness 0.95 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.9 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.8 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.7 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.6 40 30 yes
+/diagnostics quality general-improve objects (*) skewness 0.5 40 30 yes
+
+
+
+;define volumetric regions
+
+/objects volumetric-regions compute * no
+/objects vol-reg change-type * (mat*) fluid
+
+
+
+;define boundary layer prizm layers
+;/mesh scoped-prisms create prism last-ratio firstLayerHeight numberOfLayers lastPercent internalmesh fluid-regions selected-face-zones candidate*
+/mesh scoped-prisms create wing-prism last-ratio firstLayerHeight numberOfLayers lastPercent internalmesh fluid-regions selected-face-zones *wing*
+;/mesh scoped-prisms create fuselage-prism uniform firstLayerHeight numberOfLayers globalGrowthRate internalmesh fluid-regions selected-face-zones *fuse*
+;fluent bugs are so fucking annoying
+
+
+
+;create volume mesh
+/mesh auto-mesh internal* no scoped pyramids poly-hexcore yes
+
+
+
+;edit boundary types
+
+/boundary manage type (*inlet*) velocity-inlet
+/boundary manage type (domain-ymax*) velocity-inlet
+/boundary manage type (domain-zmin*) velocity-inlet
+/boundary manage type (domain-zmax*) velocity-inlet
+/boundary manage type (*outlet*) pressure-outlet
+/boundary manage type (symmetry*) symmetry
+
+
+
+;improve volume mesh qualiy
+
+/mesh modify auto-node-move (*) (*) 0.1 50 120 yes 10
+/mesh modify auto-node-move (*) (*) 0.15 50 120 yes 10
+/mesh modify auto-node-move (*) (*) 0.2 50 120 yes 10
+
+
+
+;check volume mesh quality
+
+/mesh check-quality
+
+
+
+;scale down
+
+/mesh manage scale-model 0.001 0.001 0.001
+
+
+
+;remove unnecessary items
+
+/mesh prepare-for-solve yes
+
+
+
+;edit boundary names
+
+;/boundary/manage name *fuselage* fuselage
+;/boundary/manage name *tailwing1* tailwing1
+;/boundary/manage name *tailwing2* tailwing2
+/boundary/manage name *-wing1* wing1
+
+/boundary/manage name *symmetry* symmetry
+/boundary/manage name *ymax* ymax
+/boundary/manage name *zmax* zmax
+/boundary/manage name *zmin* zmin
+/boundary/manage name *outlet* pressureoutlet
+/boundary/manage name *inlet* velocityinlet
+/boundary/manage name *interior* interior
+
+
+
+;write mesh file
+
+/file write-mesh "PARENTPATH/CFD/Mesh/CFD_Mesh.cas.h5"
+
+
+
+;exit fluent meshing
+exit

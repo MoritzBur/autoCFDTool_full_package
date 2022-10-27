@@ -1,0 +1,147 @@
+/file/set-tui-version "22.1"
+;
+;set batch options
+/file/set-batch yes yes yes no
+;
+;open basecase
+/file/read-case "CFD_Basecase.cas.h5"
+;
+;import mesh
+/file/replace-mesh "PARENTPATH/CFD/Mesh/CFD_Mesh.cas.msh.h5"
+;
+;change input parameters
+/define/parameters/input-parameters edit "airSpeed" "airSpeed" AIRSPEED
+/define/parameters/input-parameters edit "AoA" "AoA" ANGLEOFATTACK
+;
+;set reference values
+/report/reference-values/area REFERENCEAREA
+/report/reference-values/length REFERENCELENGTH
+/report/reference-values/density REFERENCEDENSITY
+/report/reference-values/temperature REFERENCETEMPERATURE
+/report/reference-values/viscosity REFERENCEVISCOSITY
+/report/reference-values/velocity AIRSPEED
+/report/reference-values/pressure REFERENCEPRESSURE
+;
+;set vector components for forces (needs to be done by recorded journal as follows)
+;set vector components for lift direction
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|lift"))
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|lift"))
+(cx-gui-do cx-activate-item "NavigationPane*Frame2*Table1*List_Tree2")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|lift"))
+(cx-gui-do cx-set-real-entry-list "Lift Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry1(X)" '( XCOMPONENTOFLIFT))
+(cx-gui-do cx-set-real-entry-list "Lift Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry2(Y)" '( 0))
+(cx-gui-do cx-set-real-entry-list "Lift Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry3(Z)" '( ZCOMPONENTOFLIFT))
+(cx-gui-do cx-activate-item "Lift Report Definition*PanelButtons*PushButton1(OK)")
+;
+;set vector components for drag direction
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|drag"))
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|drag"))
+(cx-gui-do cx-activate-item "NavigationPane*Frame2*Table1*List_Tree2")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|drag"))
+(cx-gui-do cx-set-real-entry-list "Drag Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry1(X)" '( XCOMPONENTOFDRAG))
+(cx-gui-do cx-set-real-entry-list "Drag Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry2(Y)" '( 0))
+(cx-gui-do cx-set-real-entry-list "Drag Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry3(Z)" '( ZCOMPONENTOFDRAG))
+(cx-gui-do cx-activate-item "Drag Report Definition*PanelButtons*PushButton1(OK)")
+;
+;set vector components for lift-coefficiet direction
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|lift_coefficient"))
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|lift_coefficient"))
+(cx-gui-do cx-activate-item "NavigationPane*Frame2*Table1*List_Tree2")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|lift_coefficient"))
+(cx-gui-do cx-set-real-entry-list "Lift Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry1(X)" '( XCOMPONENTOFLIFT))
+(cx-gui-do cx-set-real-entry-list "Lift Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry2(Y)" '( 0))
+(cx-gui-do cx-set-real-entry-list "Lift Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry3(Z)" '( ZCOMPONENTOFLIFT))
+(cx-gui-do cx-activate-item "Lift Report Definition*PanelButtons*PushButton1(OK)")
+;
+;set vector components for drag-coefficient direction
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|drag_coefficient"))
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|drag_coefficient"))
+(cx-gui-do cx-activate-item "NavigationPane*Frame2*Table1*List_Tree2")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Report Definitions|drag_coefficient"))
+(cx-gui-do cx-set-real-entry-list "Drag Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry1(X)" '( XCOMPONENTOFDRAG))
+(cx-gui-do cx-set-real-entry-list "Drag Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry2(Y)" '( 0))
+(cx-gui-do cx-set-real-entry-list "Drag Report Definition*Table1*Table1*Table2*Table2(Force Vector)*RealEntry3(Z)" '( ZCOMPONENTOFDRAG))
+(cx-gui-do cx-activate-item "Drag Report Definition*PanelButtons*PushButton1(OK)")
+;
+;go back to higher menu hierachy to avoid fluent error
+q
+;
+;tweak AMR settings
+/mesh/adapt/manage-criteria/edit/hess_p_and_k frequency AMRREFINEFREQUENCY
+;go back to higher menu hierachy to avoid fluent error
+q
+;
+/mesh/adapt/set/maximum-cell-count AMRMAXCELLCOUNT
+;go back to higher menu hierachy to avoid fluent error
+q
+;
+/mesh/adapt/set/maximum-refinement-level AMRMAXREFINELEVEL
+;go back to higher menu hierachy to avoid fluent error
+q
+;
+/mesh/adapt/set/minimum-edge-length AMRMINEDGELENGTH
+;go back to higher menu hierachy to avoid fluent error
+q
+;
+/mesh/adapt/set/minimum-cell-quality AMRMINCELLQUALITY
+;go back to higher menu hierachy to avoid fluent error
+q
+;
+;
+;activate AMR
+/mesh/adapt/manage-criteria/edit/hess_p_and_k active yes
+;
+;tweak cell register to avoid refinement inside boundary layer mesh
+;/mesh/adapt/cell-registers edit nearSurfaceCells type boundary distance-option cell-distance NUMBEROFLAYERS
+;workaround in case fluent can't read the above line properly:
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Cell Registers|nearSurfaceCells"))
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Cell Registers|nearSurfaceCells"))
+(cx-gui-do cx-activate-item "NavigationPane*Frame2*Table1*List_Tree2")
+(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Cell Registers|nearSurfaceCells"))
+(cx-gui-do cx-set-integer-entry "Boundary Register*Frame3*IntegerEntry1(Number of Cells)" NUMBEROFLAYERS)
+(cx-gui-do cx-activate-item "Boundary Register*Frame3*IntegerEntry1(Number of Cells)")
+(cx-gui-do cx-activate-item "Boundary Register*PanelButtons*PushButton7(Save)")
+;
+;go back to higher menu hierachy to avoid fluent error
+q
+;
+;initialize fields
+/solve/initialize/hyb-initialization
+;
+;solve
+/solve/iterate ITERATIONS
+;
+;deactivate AMR from now on and go on solving
+/mesh/adapt/manage-criteria/edit/hess_p_and_k active no
+;workaround in case fluent can't read the above line properly:
+;(cx-gui-do cx-set-list-tree-selections "NavigationPane*Frame2*Table1*List_Tree2" (list "Solution|Automatic Mesh Adaption|hess_p_and_k"))
+;(cx-gui-do cx-list-tree-right-click "NavigationPane*Frame2*Table1*List_Tree2" )
+;(cx-gui-do cx-activate-item "MenuBar*PopupMenuTree-hess_p_and_k*Deactivate")
+;
+;go back to higher menu hierachy to avoid fluent error
+q
+;
+/solve/iterate ITERATEAFTERREFINE
+;
+;report
+/report/simulation-reports/generate-simulation-report REPORTNAME
+/report/simulation-reports/export-simulation-report-as-pdf "REPORTNAME" "PARENTPATH/CFD/Solver/REPORTNAME"
+/report/simulation-reports/export-simulation-report-as-html "REPORTNAME" "PARENTPATH/CFD/Solver/REPORTNAME_html_Report"
+;
+;write case and data to disk
+/file/write-case "PARENTPATH/CFD/Solver/CFD_Simulation.cas.h5"
+/file/write-data "PARENTPATH/CFD/Solver/CFD_Simulation.pdat.dat.h5"
+;
+;OPTIONAL PART
+;remove ";" to uncomment lines and edit placeholders in capital letters
+;
+;export images
+;/display/objects/display OBJECTNAME
+;/display/save-picture FILENAME1
+;
+;export residuals plot
+;/plot/residuals yes yes yes yes yes yes
+;/display/save-picture FILENAME2
+;
+;exit fluent
+exit
