@@ -64,6 +64,12 @@ write geometry parameters into cpacs file using the template: candidateScheme.cp
 the resulting candidate.step file will be the basis for mesh creation.
 The step file can also be created by directly providing the cpacs definition. Or you just copy your step file into the Geometry directory.
 
+[Note that there are python files contained in this part that belong to DLRs TiGL software.
+More about their awesome work here:
+
+Siggel, M., Kleinert, J., Stollenwerk, T. et al.: TiGL: An Open Source Computational Geometry Library for Parametric Aircraft Design, Math.Comput.Sci. (2019). https://doi.org/10.1007/s11786-019-00401-y
+A free copy of the paper is offered here: https://rdcu.be/bIGUH ]
+
 ### 1.3.2.Meshing
 * Matlab will read meshingParameters.m and write the parameters into fluentMeshing.jou using the prepared template.
 * fluent meshing will be started with the tasks defined in fluentMeshing.jou
