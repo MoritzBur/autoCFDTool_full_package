@@ -216,3 +216,18 @@ Changing from fluent to openFoam would be awesome, but probably a bit of work. (
 This might avoid valuable CPU time wasted on things yu could have seen in advance.
 
 * work out a case that will run on ansys student license with 512k nodes.
+
+# 5. Troubleshooting
+Hope this helps you:
+
+## 5.1.fluent struggles reading journal files
+At least fluent solver proved to be very inconsistent when reading journal files.
+If you look closely at fluentMeshingTemplate.jou, you will see that line endings are set to "LF". I don't know why, but that seemed to help sometimes. Eventhough the resulting fluentMeshing.jou will have "CRLF".
+
+## 5.2.fluent might behave unexpectedly depending on cell counnt
+cell limit in meshing and AMR seemingly do not count volume cells but somesthing else. 
+For me this meant that no 512k meshes could be generated with the student license. And AMR will not refine certain areas, eventhough criteria are clearly met and cell count is well below maximum.
+
+## 5.3.results and report names are mixed up
+Check your input files. If you accidentally saved meshing parameters into envConfig.m for example, that might cause confusing behavior.
+(Or write a script to check inputs before starting the jobs.)
