@@ -84,6 +84,11 @@ A free copy of the paper is offered here: https://rdcu.be/bIGUH ]
 
 
 # 2.Installation
+
+To install this tool, you need to download the repository and place the extracted directories wherever you like.
+Choose a location where you have proper access rights.
+Next, you will need to install all required dependencies:
+
 ## 2.1.Matlab
 The tool has so far only been tested with Matlab version 2022a.
 Alternatively the scripts might also work in GNU Octave, as it is supposed to be matlab compatible.
@@ -121,6 +126,17 @@ The toolbox needs to know, how it cas start python. If you need or want to speci
 in "pythonVersion". If it's just the command "python" for you, skip this step.
 
 # 3.Usage
+
+Open Matlab and navigate to your directory containing the script "studyRunner.m".
+Make sure to add this directory to Matlab path without also adding subdirectories!
+Subdirectories will be added and removed from path by the scripts themselves. This is to ensure that changes are only made to the case currently running.
+
+Use the template cases Run_1 (containing full aircraft geometry) and Run_2 (only wing) as baseline. Make all the changes you need as described below.
+(Remember to remove all accessed subdirectories from Matlab path.)
+
+To finally start computation, execute "studyRunner.m". 
+Progress can be checked via the terminal or by looking at the files created within each case.
+
 ## 3.1.changing Geometry Definition
 If you use the proprietary external input file (myAircraftParameters.m), replace or edit this file.
 Note that only rectangular, trapezoidal and a combination thereof are possible as planform shape. If you want elliptic wings, that is for you to implement. 
